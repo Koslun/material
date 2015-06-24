@@ -83,7 +83,18 @@
       };
 
       vm.close = function() {
-        $scope.$apply('vm.isOpen = false');
+        // Only close if we do not currently have mouse focus (since child elements can call this)
+        !vm.moused && $scope.$apply('vm.isOpen = false');
+      };
+
+      vm.mouseenter = function() {
+        vm.moused = true;
+        vm.open();
+      };
+
+      vm.mouseleave = function() {
+        vm.moused = false;
+        vm.close();
       };
 
       setupDefaults();
@@ -101,8 +112,8 @@
 
       // Setup our event listeners
       function setupListeners() {
-        $element.on('mouseenter', vm.open);
-        $element.on('mouseleave', vm.close);
+        $element.on('mouseenter', vm.mouseenter);
+        $element.on('mouseleave', vm.mouseleave);
       }
 
       // Setup our watchers
