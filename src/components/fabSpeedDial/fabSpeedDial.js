@@ -73,18 +73,24 @@
       element.prepend('<div class="md-css-variables"></div>');
     }
 
-    function FabSpeedDialController($scope, $element, $animate) {
+    function FabSpeedDialController($scope, $element, $animate, $timeout) {
       var vm = this;
 
       // Define our open/close functions
       // Note: Used by fabTrigger and fabActions directives
       vm.open = function() {
+        vm.shouldClose = false;
         $scope.$apply('vm.isOpen = true');
       };
 
       vm.close = function() {
-        // Only close if we do not currently have mouse focus (since child elements can call this)
-        !vm.moused && $scope.$apply('vm.isOpen = false');
+        vm.shouldClose = true;
+
+        // Run at the next digest to avoid very fast changes (i.e. tabbing between child items)
+        $timeout(function() {
+          // Only close if we do not currently have mouse focus (since child elements can call this)
+          !vm.moused && vm.shouldClose && $scope.$apply('vm.isOpen = false');
+        }, 0, false);
       };
 
       vm.mouseenter = function() {
